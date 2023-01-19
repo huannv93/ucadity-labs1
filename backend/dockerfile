@@ -1,0 +1,33 @@
+# base image
+FROM circleci/node:13.8.0
+USER root
+# set working directory
+RUN mkdir -p /usr/src/app
+WORKDIR /usr/src/app
+
+# add `/usr/src/app/node_modules/.bin` to $PATH
+ENV PATH /usr/src/app/node_modules/.bin:$PATH
+
+# RUN apk update && apk upgrade && \
+#     apk add --no-cache bash git openssh
+
+COPY . /usr/src/app/
+
+RUN chown root:root /usr/src/app && \
+    mkdir /.npm && chown root:root /.npm && \
+    mkdir /.config && chown root:root /.config && \
+    mkdir /.cache && chown root:root /.cache && \
+    mkdir /.local && chown root:root /.local
+
+USER root
+
+RUN npm install
+#RUN npm run migrations
+#RUN npm audit fix --audit-level=critical --force
+#RUN npm audit fix --audit-level=critical --force
+#RUN npm audit --audit-level=critical
+
+
+# start app
+#CMD ["npm", "run", "migrations"]
+CMD ["npm", "run", "start"]

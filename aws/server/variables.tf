@@ -1,0 +1,14 @@
+variable "aws_region" {}
+variable "vpc_name" {}
+variable "vpc_cidr" {}
+variable "prefix_name" {}
+variable "ssl_certificate_id" {}
+variable "dockerhub" {}
+variable "image_name_frontend" {}
+variable "image_name_backend" {}
+variable "instance_type" {}
+variable "instance_min" {}
+variable "instance_max" {}
+variable "hosted_zone" {}
+variable "prefix_tag" {}
+variable "app_count_max" {}
