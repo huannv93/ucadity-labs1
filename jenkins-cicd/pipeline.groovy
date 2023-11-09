@@ -2,22 +2,26 @@ pipeline {
     agent any
     
     stages {
-
-        stage('Checkout') {
+        
+        stage('Build image environment'){
             steps {
-                script {
-                    checkout scm: [
-                        $class: 'GitSCM',
-                        branches: [[name: '*/main']],
-                        userRemoteConfigs: [[url: 'https://github.com/huannv93/ucadity-labs1.git']]
-                    ]
-                }
-            }
+            script {
+                checkout scm: [
+                    $class: 'GitSCM',
+                    branches: [[name: '*/main']],
+                    userRemoteConfigs: [[url: 'https://github.com/huannv93/ucadity-labs1.git']]
+                ]
+                dir('frontend') {        
+                    sh 'docker build -t image-env .'
+                        }
+            
+        }
+        }
         }
 
         stage('Build Frontend') {
             agent {
-                docker { image 'circleci/node:13.8.0' }
+                docker { image 'image-env' }
             }
             steps {
 
@@ -33,9 +37,9 @@ pipeline {
                     // def frontendCacheKey = 'frontend-build'
                     // withCache(frontendCacheKey) {
                     dir('frontend') {
-                        sh 'sudo chown -R 992:992 "/.npm"'
-                        sh 'sudo npm install'
-                        sh 'sudo npm run build'
+                        // sh 'id'
+                        sh 'npm install'
+                        sh 'npm run build'
                     }
                     // }
                 }

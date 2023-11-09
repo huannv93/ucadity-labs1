@@ -1,6 +1,6 @@
-# base image for evnviroment
-FROM circleci/node:13.8.0
-USER root
+# # base image for evnviroment
+# FROM circleci/node:13.8.0
+# USER root
 # set working directory
 # RUN mkdir -p /usr/src/app
 # WORKDIR /usr/src/app
@@ -34,3 +34,14 @@ USER root
 # # start app
 # CMD ["npm", "run", "build"]
 # EXPOSE 3000
+
+
+
+########base image########
+
+FROM circleci/node:13.8.0
+
+# Set UID and GID for the non-root user
+USER root
+RUN usermod -u 992 circleci && groupmod -g 992 circleci
+USER circleci
