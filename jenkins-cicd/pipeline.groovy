@@ -9,6 +9,7 @@ pipeline {
         DOCKER_IMAGE_NAME = '221008696644.dkr.ecr.ap-northeast-1.amazonaws.com/huannv-repo-private' 
         BACKEND_URL = 'https://api-cloudsm.huannguyen.io.vn'
         S3_BUCKET = 'huannguyen.io.vn'
+        DISTRIBUTIONID_CLOUDFRONT = 'E2U461YNXOTQ18'
 
     }
 
@@ -243,25 +244,38 @@ pipeline {
 
         stage('Deploy FrontEnd') {
             steps {
-
                 script {
                     def commitHash = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
-                    sh 'echo ${commitHash}'
-                    dir('frontend') {                    
-                            sh 'touch .env'
-                            sh 'mkdir -p buildresult'
-                            sh 'echo "API_URL=${BACKEND_URL}" >> .env'
-                            sh 'docker build -t udacity-build:abc . '
-                            sh 'docker run --name udacity-build-fe-huannv --mount type=bind,source="$(pwd)"/buildresult,target=/usr/src/app/dist udacity-build:abc'
-                            sh 'aws s3 cp buildresult s3://${S3_BUCKET} --recursive'
-                            sh 'docker stop udacity-build-fe-huannv'
-                            sh 'docker rm udacity-build-fe-huannv'
-                        }
-                    
+                    def IMAGE_NAME = "udacity-build:${commitHash}"
+
+                    sh "echo ${commitHash}"
+                    dir('frontend') {
+                        sh 'touch .env'
+                        sh 'mkdir -p buildresult'
+                        sh "echo \"API_URL=${BACKEND_URL}\" >> .env"
+                        sh "docker build -t ${IMAGE_NAME} ."
+                        sh "echo IMAGE_NAME=${IMAGE_NAME}"
+                        // sh "docker run --name ${IMAGE_NAME} --mount type=bind,source='$(pwd)'/buildresult,target=/usr/src/app/dist ${IMAGE_NAME}"
+                        // sh "docker run --name ${IMAGE_NAME} --mount type=bind,source='$(pwd)'/buildresult,target=/usr/src/app/dist ${IMAGE_NAME}"
+                        sh 'docker run --name ${IMAGE_NAME} --mount type=bind,source=$(pwd)/buildresult,target=/usr/src/app/dist ${IMAGE_NAME}'
+
+
+                        // sh "aws s3 cp buildresult s3://${S3_BUCKET} --recursive"
+                        // sh "docker stop ${IMAGE_NAME}"
+                        // sh "docker rm ${IMAGE_NAME}"
+                    }
                 }
             }
         }
 
+        stage('Clear Cache CDN') {
+            steps {
+
+                script {
+                    sh 'aws cloudfront create-invalidation --distribution-id ${DISTRIBUTIONID_CLOUDFRONT} --paths "/*" > /dev/null'           
+                }
+            }
+        }
 
 
       
