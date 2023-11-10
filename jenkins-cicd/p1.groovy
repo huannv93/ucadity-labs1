@@ -206,33 +206,39 @@ pipeline {
         
                     // Describe the existing ECS Task Definition
                     def TASK_DEFINITION = sh(script: "aws ecs describe-task-definition --task-definition ${TASK_DEFINITION_NAME} --region ${AWS_DEFAULT_REGION} --output json", returnStdout: true).trim()
-        
-                    echo "Container Definitions: ${TASK_DEFINITION}"
-        
+                
                     // Update the Docker image tag in the Task Definition
                     def NEW_TASK_DEFINITION = sh(script: "echo '${TASK_DEFINITION}' | jq --arg IMAGE ${DOCKER_IMAGE_NAME}:${commitHash} '.taskDefinition.containerDefinitions[0].image = \$IMAGE | del(.taskDefinitionArn) | del(.revision) | del(.status) | del(.requiresAttributes) | del(.compatibilities) |  del(.registeredAt)  | del(.registeredBy)'", returnStdout: true).trim()
-        
-                    echo "Container Definitions: ${NEW_TASK_DEFINITION}"
-        
+                
                     def container_definitions = sh(script: "echo '${NEW_TASK_DEFINITION}' | jq '.taskDefinition.containerDefinitions' -c", returnStdout: true).trim()
         
-                    echo "Container Definitions: ${container_definitions}"
+                    // Get info to create new ECS Task Definition
+
+                    def requires_compatibilities = sh(script: "echo '${NEW_TASK_DEFINITION}' | jq -r '.taskDefinition.requiresCompatibilities[0]' -c", returnStdout: true).trim()
+                    def network_mode = sh(script: "echo '${NEW_TASK_DEFINITION}' | jq '.taskDefinition.networkMode' -c", returnStdout: true).trim()
+
+                    def task_role_arn = sh(script: "echo '${NEW_TASK_DEFINITION}' | jq '.taskDefinition.taskRoleArn' -c", returnStdout: true).trim()
+
+                    def execution_role_arn = sh(script: "echo '${NEW_TASK_DEFINITION}' | jq '.taskDefinition.executionRoleArn' -c", returnStdout: true).trim()
+                    def cpu = sh(script: "echo '${NEW_TASK_DEFINITION}' | jq '.taskDefinition.cpu' -c", returnStdout: true).trim()
+                    def memory = sh(script: "echo '${NEW_TASK_DEFINITION}' | jq '.taskDefinition.memory' -c", returnStdout: true).trim()
+              
         
                     // Register a new revision of the ECS Task Definition
-                    def NEW_TASK_INFO = sh(script: "aws ecs register-task-definition --family CloudSM --container-definitions '${container_definitions}' --requires-compatibilities FARGATE  --network-mode awsvpc  --task-role-arn arn:aws:iam::221008696644:role/ecs-task-role --execution-role-arn arn:aws:iam::221008696644:role/ecs-task-role --cpu 1024 --memory 2048 --region ${AWS_DEFAULT_REGION}", returnStdout: true).trim()
+                    def NEW_TASK_INFO = sh(script: "aws ecs register-task-definition --family CloudSM --container-definitions '${container_definitions}' --requires-compatibilities ${requires_compatibilities}  --network-mode ${network_mode}  --task-role-arn ${task_role_arn} --execution-role-arn ${execution_role_arn} --cpu ${cpu} --memory ${memory} --region ${AWS_DEFAULT_REGION}", returnStdout: true).trim()
         
-                    
                     // Get the new revision number
                     def NEW_REVISION = sh(script: "echo '${NEW_TASK_INFO}' | jq '.taskDefinition.revision'", returnStdout: true).trim()
-            
-                    echo "Container Definitions: ${NEW_REVISION}"
+
+                    // Update ecs service
+                    sh "aws ecs update-service --region '${AWS_DEFAULT_REGION}' --cluster '${ECS_CLUSTER}' --service '${ECS_SERVICE}' --task-definition '${TASK_DEFINITION_NAME}':'${NEW_REVISION}' --force-new-deployment"
+
         
-        
-                    // Update the ECS service with the new Task Definition revision
-                    sh "aws ecs update-service --region ${AWS_DEFAULT_REGION} --cluster ${ECS_CLUSTER} --service ${SERVICE_NAME} --task-definition ${TASK_DEFINITION_NAME}:${NEW_REVISION}"
-                }
+                                    }
             }
+
         }
+
 
 
       

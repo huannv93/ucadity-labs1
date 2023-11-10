@@ -198,7 +198,7 @@ pipeline {
             }
         }
 
-        stage('Update ECS Task Definition and ECS Services') {
+        stage('Update ECS Task Definition') {
             steps {
                 script {
                     // Get the Git commit hash or another identifier
@@ -239,7 +239,19 @@ pipeline {
             }
 
         }
+        stage('Update ECS service') {
+            steps {
+                script {
+                    // Update the ECS service with the new Task Definition revision
+
+                       sh "aws ecs update-service --region ${AWS_DEFAULT_REGION} --cluster ${ECS_CLUSTER} --service ${ECS_SERVICE} --task-definition ${TASK_DEFINITION_NAME}:${NEW_REVISION} --force-new-deployment"
+                        // sh "aws ecs update-service --region ap-northeast-1  --cluster ecs-cluster-CloudSM --service ecs-svc-CloudSM --task-definition CloudSM:12 --force-new-deployment"
+                    }
+                }
+            }
         
+
+
       
     }
 

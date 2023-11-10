@@ -1,6 +1,6 @@
-# Jenkins CI/CD Setup Guide
+## Jenkins CI/CD Setup Guide
 
-## Preparation
+### Preparation
 
 ### Install Jenkins on Linux OS
 
@@ -88,6 +88,10 @@ Follow the official Docker installation guide for your Linux distribution: [Get 
     - Docker
 
 4. Restart Jenkins after installing the plugins.
+
+### Install jq on Linux
+
+Follow the steps at the beginning of this document to install the `jq` tool for JSON processing.
 
 ## Slack Integration with Jenkins
 
