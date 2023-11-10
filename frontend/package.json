@@ -12,7 +12,7 @@
     "start": "webpack-dev-server --mode development --hot --progress --color --host 0.0.0.0 --disable-host-check --port 3000 --open",
     "lint": "tslint -p tsconfig.json -c tslint.json",
     "build:prod": "webpack -p --progress --colors",
-    "build": "webpack --mode development --progress --colors",
+    "build": "webpack --mode development --progress --colors --host 0.0.0.0",
     "format": "prettier --write \"src/**/*.{ts,tsx,css}\""
   },
   "license": "MIT",

@@ -245,17 +245,17 @@ pipeline {
             steps {
 
                 script {
-
-                    dir('frontend') {
-                            def commitHash = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
+                    def commitHash = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
+                    sh 'echo ${commitHash}'
+                    dir('frontend') {                    
                             sh 'touch .env'
                             sh 'mkdir -p buildresult'
                             sh 'echo "API_URL=${BACKEND_URL}" >> .env'
-                            sh 'docker build -t udacity-build . '
-                            sh 'docker run --name udacity-build-fe-${commitHash} --mount type=bind,source="$(pwd)"/buildresult,target=/usr/src/app udacity-build'
-                            sh 'aws s3 cp "$(pwd)"/buildresult/dist s3://${S3_BUCKET} --recursive'
-                            sh 'docker stop udacity-build-fe-${commitHash}'
-                            sh 'docker rm udacity-build-fe-${commitHash}'
+                            sh 'docker build -t udacity-build:abc . '
+                            sh 'docker run --name udacity-build-fe-huannv --mount type=bind,source="$(pwd)"/buildresult,target=/usr/src/app/dist udacity-build:abc'
+                            sh 'aws s3 cp buildresult s3://${S3_BUCKET} --recursive'
+                            sh 'docker stop udacity-build-fe-huannv'
+                            sh 'docker rm udacity-build-fe-huannv'
                         }
                     
                 }
