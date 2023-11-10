@@ -1,4 +1,4 @@
-# base image
+# base image for init database
 FROM circleci/node:13.8.0
 USER root
 # set working directory
@@ -8,8 +8,6 @@ WORKDIR /usr/src/app
 # add `/usr/src/app/node_modules/.bin` to $PATH
 ENV PATH /usr/src/app/node_modules/.bin:$PATH
 
-# RUN apk update && apk upgrade && \
-#     apk add --no-cache bash git openssh
 
 COPY . /usr/src/app/
 
@@ -22,12 +20,6 @@ RUN chown root:root /usr/src/app && \
 USER root
 
 RUN npm install
-#RUN npm run migrations
-#RUN npm audit fix --audit-level=critical --force
-#RUN npm audit fix --audit-level=critical --force
-#RUN npm audit --audit-level=critical
 
-
-# start app
-#CMD ["npm", "run", "migrations"]
+# start init database
 CMD ["npm", "run", "migrations"]
