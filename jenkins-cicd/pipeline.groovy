@@ -248,11 +248,13 @@ pipeline {
 
                     dir('frontend') {
                             sh 'touch .env'
-                            sh 'mkdir buildresult'
+                            sh 'mkdir -p buildresult'
                             sh 'echo "API_URL=${BACKEND_URL}" >> .env'
                             sh 'docker build -t udacity-build . '
                             sh 'docker run --name udacity-build-fe --mount type=bind,source="$(pwd)"/buildresult,target=/usr/src/app udacity-build'
                             sh 'aws s3 cp "$(pwd)"/buildresult/dist s3://${S3_BUCKET} --recursive'
+                            sh 'docker stop udacity-build-fe'
+                            sh 'docker rm udacity-build-fe'
                         }
                     
                 }

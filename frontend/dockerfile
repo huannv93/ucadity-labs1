@@ -1,13 +1,12 @@
-# base image for evnviroment
+# base image for init database
 FROM circleci/node:13.8.0
 USER root
 # set working directory
 RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
 
-
+# add `/usr/src/app/node_modules/.bin` to $PATH
 ENV PATH /usr/src/app/node_modules/.bin:$PATH
-
 
 
 COPY . /usr/src/app/
@@ -22,9 +21,5 @@ USER root
 
 RUN npm install
 
+# start init database
 CMD ["npm", "run", "build"]
-EXPOSE 3000
-
-
-
-
