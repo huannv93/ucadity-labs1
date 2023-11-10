@@ -1,0 +1,9 @@
+
+########base image########
+
+FROM circleci/node:13.8.0
+
+# Set UID and GID for the non-root user
+USER root
+RUN usermod -u 992 circleci && groupmod -g 992 circleci
+USER circleci
