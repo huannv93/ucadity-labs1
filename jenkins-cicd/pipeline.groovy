@@ -15,112 +15,112 @@ pipeline {
 
     stages {
         
-        // stage('Build image environment'){
-        //     steps {
-        //     script {
-        //         checkout scm: [
-        //             $class: 'GitSCM',
-        //             branches: [[name: '*/main']],
-        //             userRemoteConfigs: [[url: 'https://github.com/huannv93/ucadity-labs1.git']]
-        //         ]
-        //         dir('jenkins-cicd') {        
-        //             sh 'docker build -t image-env .'
-        //                 }
+        stage('Build image environment'){
+            steps {
+            script {
+                checkout scm: [
+                    $class: 'GitSCM',
+                    branches: [[name: '*/main']],
+                    userRemoteConfigs: [[url: 'https://github.com/huannv93/ucadity-labs1.git']]
+                ]
+                dir('jenkins-cicd') {        
+                    sh 'docker build -t image-env .'
+                        }
             
-        // }
-        // }
-        // }
+        }
+        }
+        }
 
-        // stage('Build Frontend') {
-        //     agent {
-        //         docker { image 'image-env' }
-        //     }
-        //     steps {
+        stage('Build Frontend') {
+            agent {
+                docker { image 'image-env' }
+            }
+            steps {
 
-        //         script {
-        //             checkout scm: [
-        //                 $class: 'GitSCM',
-        //                 branches: [[name: '*/main']],
-        //                 userRemoteConfigs: [[url: 'https://github.com/huannv93/ucadity-labs1.git']]
-        //             ]
+                script {
+                    checkout scm: [
+                        $class: 'GitSCM',
+                        branches: [[name: '*/main']],
+                        userRemoteConfigs: [[url: 'https://github.com/huannv93/ucadity-labs1.git']]
+                    ]
 
-        //             def frontendCacheKey = 'frontend-build'
-        //                 dir('frontend') {
-        //                     sh 'sudo npm install'
-        //                     sh 'sudo npm run build'
-        //                 }
+                    def frontendCacheKey = 'frontend-build'
+                        dir('frontend') {
+                            sh 'sudo npm install'
+                            sh 'sudo npm run build'
+                        }
                     
-        //         }
-        //     }
-        // }
+                }
+            }
+        }
 
-        // stage('Build Backend') {
-        //     agent {
-        //         docker { image 'image-env' }
-        //     }
-        //     steps {
+        stage('Build Backend') {
+            agent {
+                docker { image 'image-env' }
+            }
+            steps {
 
-        //         script {
-        //             checkout scm: [
-        //                 $class: 'GitSCM',
-        //                 branches: [[name: '*/main']],
-        //                 userRemoteConfigs: [[url: 'https://github.com/huannv93/ucadity-labs1.git']]
-        //             ]
+                script {
+                    checkout scm: [
+                        $class: 'GitSCM',
+                        branches: [[name: '*/main']],
+                        userRemoteConfigs: [[url: 'https://github.com/huannv93/ucadity-labs1.git']]
+                    ]
 
-        //             def backendCacheKey = 'frontend-build'
-        //                 dir('backend') {
-        //                     sh 'sudo npm install'
-        //                     sh 'sudo npm run build'
-        //                 }
+                    def backendCacheKey = 'frontend-build'
+                        dir('backend') {
+                            sh 'sudo npm install'
+                            sh 'sudo npm run build'
+                        }
                     
-        //         }
-        //     }
-        // }
+                }
+            }
+        }
 
-        // stage('Test Frontend') {
-        //     agent {
-        //         docker { image 'image-env' }
-        //     }
-        //     steps {
+        stage('Test Frontend') {
+            agent {
+                docker { image 'image-env' }
+            }
+            steps {
 
-        //         script {
-        //             checkout scm: [
-        //                 $class: 'GitSCM',
-        //                 branches: [[name: '*/main']],
-        //                 userRemoteConfigs: [[url: 'https://github.com/huannv93/ucadity-labs1.git']]
-        //             ]
+                script {
+                    checkout scm: [
+                        $class: 'GitSCM',
+                        branches: [[name: '*/main']],
+                        userRemoteConfigs: [[url: 'https://github.com/huannv93/ucadity-labs1.git']]
+                    ]
 
-        //             dir('frontend') {
-        //                     sh 'sudo npm run build'
-        //                     sh 'sudo npm run test'
-        //                 }
+                    dir('frontend') {
+                            sh 'sudo npm run build'
+                            sh 'sudo npm run test'
+                        }
                     
-        //         }
-        //     }
-        // }
+                }
+            }
+        }
 
 
-        // stage('Test Backend') {
-        //     agent {
-        //         docker { image 'image-env' }
-        //     }
-        //     steps {
+        stage('Test Backend') {
+            agent {
+                docker { image 'image-env' }
+            }
+            steps {
 
-        //         script {
-        //             checkout scm: [
-        //                 $class: 'GitSCM',
-        //                 branches: [[name: '*/main']],
-        //                 userRemoteConfigs: [[url: 'https://github.com/huannv93/ucadity-labs1.git']]
-        //             ]
+                script {
+                    checkout scm: [
+                        $class: 'GitSCM',
+                        branches: [[name: '*/main']],
+                        userRemoteConfigs: [[url: 'https://github.com/huannv93/ucadity-labs1.git']]
+                    ]
 
-        //             dir('backend') {
-        //                     sh 'sudo npm run build'
-        //                     sh 'sudo npm run test'
-        //                 }
+                    dir('backend') {
+                            sh 'sudo npm run build'
+                            sh 'sudo npm run test'
+                        }
                     
-        //         }
-        //     }
-        // }
+                }
+            }
+        }
 // Comment this code to pass scan security
         // stage('Scan Frontend') {
         //     agent {
@@ -247,6 +247,7 @@ pipeline {
                 script {
                     def commitHash = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
                     def IMAGE_NAME = "udacity-build:${commitHash}"
+                    def CONTAINER_NAME = "udacity-build-${commitHash}"
 
                     sh "echo ${commitHash}"
                     dir('frontend') {
@@ -254,28 +255,25 @@ pipeline {
                         sh 'mkdir -p buildresult'
                         sh "echo \"API_URL=${BACKEND_URL}\" >> .env"
                         sh "docker build -t ${IMAGE_NAME} ."
-                        sh "echo IMAGE_NAME=${IMAGE_NAME}"
-                        // sh "docker run --name ${IMAGE_NAME} --mount type=bind,source='$(pwd)'/buildresult,target=/usr/src/app/dist ${IMAGE_NAME}"
-                        // sh "docker run --name ${IMAGE_NAME} --mount type=bind,source='$(pwd)'/buildresult,target=/usr/src/app/dist ${IMAGE_NAME}"
-                        sh 'docker run --name ${IMAGE_NAME} --mount type=bind,source=$(pwd)/buildresult,target=/usr/src/app/dist ${IMAGE_NAME}'
-
-
+                        sh "docker run --name ${CONTAINER_NAME} -v \$(pwd)/buildresult:/usr/src/app/dist ${IMAGE_NAME}"
+                        // Upload S3 website
                         // sh "aws s3 cp buildresult s3://${S3_BUCKET} --recursive"
-                        // sh "docker stop ${IMAGE_NAME}"
-                        // sh "docker rm ${IMAGE_NAME}"
+                        // Clean up
+                        sh "docker stop ${CONTAINER_NAME}"
+                        sh "docker rm ${CONTAINER_NAME}"
                     }
                 }
             }
         }
 
-        stage('Clear Cache CDN') {
-            steps {
+        // stage('Clear Cache CDN') {
+        //     steps {
 
-                script {
-                    sh 'aws cloudfront create-invalidation --distribution-id ${DISTRIBUTIONID_CLOUDFRONT} --paths "/*" > /dev/null'           
-                }
-            }
-        }
+        //         script {
+        //             sh 'aws cloudfront create-invalidation --distribution-id ${DISTRIBUTIONID_CLOUDFRONT} --paths "/*" > /dev/null'           
+        //         }
+        //     }
+        // }
 
 
       
@@ -284,13 +282,26 @@ pipeline {
     
     post {
         success {
-            // Send Slack notification on success
-            slackSend(
-                color: 'good',
-                message: 'Success message',
-                channel: '#devops'
-            )
+            script {
+                def commitHash = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
+                def msgAttachments = [
+                    [
+                        mrkdwn_in: ['text'],
+                        fallback: "Server API deployed on ${ECS_SERVICE}",
+                        color: '#36a64f',
+                        pretext: "Server API deployed on ${ECS_CLUSTER} | ${ECS_SERVICE}",
+                        text: "Success build *Build:* ${commitHash}",
+                    ],
+                    [
+                        title: 'Git Commit',
+                        value: "${commitHash}"
+                    ]
+                ]
+                slackSend(botUser: true, channel: '#devops', attachments: msgAttachments)
+            }
         }
+
+        
         failure {
             // Send Slack notification on failure
             slackSend(
