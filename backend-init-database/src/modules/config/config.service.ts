@@ -1,8 +1,8 @@
 import * as Joi from '@hapi/joi';
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { AboutInfo } from './about.interface';
-import { Product } from '../../modules/domain/orders/entities/product.entity';
-import { Order } from '../../modules/domain/orders/entities/order.entity';
+import { Product } from '../domain/orders/entities/product.entity';
+import { Order } from '../domain/orders/entities/order.entity';
 import { Employee } from '../domain/employees/entities/employee.entity';
 
 export interface EnvConfig {

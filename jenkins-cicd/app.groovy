@@ -257,7 +257,7 @@ pipeline {
                         sh "docker build -t ${IMAGE_NAME} ."
                         sh "docker run --name ${CONTAINER_NAME} -v \$(pwd)/buildresult:/usr/src/app/dist ${IMAGE_NAME}"
                         // Upload S3 website
-                        // sh "aws s3 cp buildresult s3://${S3_BUCKET} --recursive"
+                        sh "aws s3 cp buildresult s3://${S3_BUCKET} --recursive"
                         // Clean up
                         sh "docker stop ${CONTAINER_NAME}"
                         sh "docker rm ${CONTAINER_NAME}"
@@ -266,31 +266,35 @@ pipeline {
             }
         }
 
-        // stage('Clear Cache CDN') {
-        //     steps {
+        stage('Clear Cache CDN') {
+            steps {
 
-        //         script {
-        //             sh 'aws cloudfront create-invalidation --distribution-id ${DISTRIBUTIONID_CLOUDFRONT} --paths "/*" > /dev/null'           
-        //         }
-        //     }
-        // }
+                script {
+                    sh 'aws cloudfront create-invalidation --distribution-id ${DISTRIBUTIONID_CLOUDFRONT} --paths "/*" > /dev/null'           
+                }
+            }
+        }
 
 
       
     }
 
-    
     post {
         success {
             script {
                 def commitHash = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
+                def buildNumber = env.BUILD_NUMBER
+                def buildName = env.JOB_NAME
+                def jenkinsVersion = sh(script: 'java -jar /var/jenkins_home/war/WEB-INF/jenkins-cli.jar version', returnStdout: true).trim()
+                def jenkinsUrl = env.BUILD_URL  // Assuming BUILD_URL is available in your Jenkins environment
+
                 def msgAttachments = [
                     [
                         mrkdwn_in: ['text'],
-                        fallback: "Server API deployed on ${ECS_SERVICE}",
+                        fallback: "[Project-X] CICD deployed success on ${ECS_SERVICE}",
                         color: '#36a64f',
-                        pretext: "Server API deployed on ${ECS_CLUSTER} | ${ECS_SERVICE}",
-                        text: "Success build *Build:* ${commitHash}",
+                        pretext: "[Project-X] CICD deployed success on ${ECS_CLUSTER} | ${ECS_SERVICE}",
+                        text: "Success build *Build Number:* ${buildNumber}\n*Build Name:* ${buildName}\n*Git Commit:* ${commitHash}\n*Jenkins Version:* ${jenkinsVersion}\n*Jenkins URL:* ${jenkinsUrl}",
                     ],
                     [
                         title: 'Git Commit',
@@ -301,14 +305,32 @@ pipeline {
             }
         }
 
-        
         failure {
-            // Send Slack notification on failure
-            slackSend(
-                color: 'danger',
-                message: 'Failure message',
-                channel: '#devops'
-            )
+            script {
+                def commitHash = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
+                def buildNumber = env.BUILD_NUMBER
+                def buildName = env.JOB_NAME
+                def jenkinsVersion = "2.414.3"
+                def jenkinsUrl = env.BUILD_URL  // Assuming BUILD_URL is available in your Jenkins environment
+
+                def msgAttachments = [
+                    [
+                        mrkdwn_in: ['text'],
+                        fallback: "[Project-X] CICD deployed failure on ${ECS_SERVICE}",
+                        color: 'danger',
+                        pretext: "[Project-X] CICD deployed failure on ${ECS_CLUSTER} | ${ECS_SERVICE}",
+                        text: "Failure *Build Number:* ${buildNumber}\n*Build Name:* ${buildName}\n*Git Commit:* ${commitHash}\n*Jenkins Version:* ${jenkinsVersion}\n*Jenkins URL:* ${jenkinsUrl}",
+                    ],
+                    [
+                        title: 'Git Commit',
+                        value: "${commitHash}"
+                    ]
+                ]
+                slackSend(botUser: true, channel: '#devops', attachments: msgAttachments)
+            }
         }
     }
+
+    
+
 }

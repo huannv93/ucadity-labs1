@@ -1,5 +1,7 @@
 ## Jenkins CI/CD Setup Guide
 
+![Jenkins Icon](https://www.jenkins.io/images/logo-title-opengraph.png)
+
 ### Preparation
 
 ### Install Jenkins on Linux OS
@@ -42,6 +44,8 @@
     sudo apt-get install jenkins
     ```
 
+   **Jenkins Version:** 2.414.3
+   
 8. Start Jenkins service:
 
     ```bash
@@ -101,11 +105,15 @@ Follow the guide at [See Build Status in Slack with Jenkins Slack Integration](h
 
 The Jenkins pipeline is configured to perform the following tasks:
 
-1. **Build, Test, and Deploy to AWS ECS Cluster:**
-   - The pipeline includes stages for building, testing, and deploying applications to an AWS ECS cluster.
+1. **Build, Test, and Deploy Backend API to AWS ECS Cluster:**
+   - The pipeline includes stages for building, testing, and deploying the backend API to an AWS ECS cluster.
    - The configuration is defined in the Jenkinsfile in your source code repository.
 
-2. **Receive Pipeline Notifications on Slack:**
+2. **Build and Deploy Frontend to S3 Bucket and Clear Cache in CloudFront:**
+   - This additional stage includes steps for building the frontend source code and deploying it to an S3 bucket.
+   - It also includes a step to clear the cache in CloudFront to apply the new version of the frontend.
+
+3. **Receive Pipeline Notifications on Slack:**
    - Slack integration is set up to receive notifications about pipeline build status.
    - Configure Slack notifications as per the guide provided [here](https://www.cloudbees.com/blog/see-build-status-in-slack-with-jenkins-slack-integration).
 
