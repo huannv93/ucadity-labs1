@@ -26,161 +26,51 @@
 
 ## Description
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
 
-## Installation
+```markdown
+# Project Database Initialization
 
-1st, login with NPM using `npm login`. That way you can access the private packages.
+## Overview
 
-2nd...
+This step guides you through initializing the PostgreSQL database for the project.
 
-```bash
-$ npm install
-```
+**Note:** Ensure that you have your environment variables set up. Refer to the "DB Setup" section for more information.
 
-## Running the app
+## Prerequisites
 
-```bash
-# development
-$ npm run start
+Before proceeding, make sure you have Docker installed on your machine.
 
-# watch mode
-$ npm run start:dev
+## Build Docker Image
 
-# incremental rebuild (webpack)
-$ npm run webpack
-$ npm run start:hmr
-
-# production mode
-$ npm run start:prod
-```
-
-## Test
+Build the Docker image for the database initialization script.
 
 ```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+docker build -t udacity-init-database .
 ```
 
-## Support
+## Run Database Initialization
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](LICENSE).
-
-## Status/Healthcheck Endpoint
-
-This API comes with a simple endpoint that provides it's status. If the API is not working, neither will the endpoint. This can be useful for load balancers and other applications that periodically check on the availability of a service.
-
-`GET /status` => `{ status: "ok" }`
-
-## Logging with Loggly
-
-We are using Loggly with Winston to track log messages remotely. If you want to send your logs to Loggly, you should configure the following variables in your environment (either with `.env` or in your operating system):
-
-```
-LOGGLY_SUBDOMAIN=yoursubdomain
-LOGGLY_TOKEN=yourlogglytoken
-LOGGLY_LEVEL=info
-```
-
-You can obtain a free account from Loggly to test.
-
-## Logging with Slack
-
-You can also log things like errors to Slack to get faster notifications. If you want to send your logs to Slack, you should configure the following variables in your environment (either with `.env` or in your operating system):
-
-```
-SLACK_LOGGER_WEBHOOK=some webhook from slack
-SLACK_LOGGER_CHANNEL=channelName
-```
-
-To further customize the log messages, you can also include these optional env vars:
-
-```
-SLACK_LOGGER_USERNAME=Sync Errors
-SLACK_LOGGER_ICON_URL=http://someImage.com
-SLACK_LOGGER_LOG_LEVEL=error
-```
-
-## Migrations
-
-NOTE: Be sure you have your environment variables set up. See `DB Setup` section.
-
-NestJS uses TypeORM to create, generate, run migrations.
-To apply pending migrations you just need to run:
+Run the following command to start the PostgreSQL database initialization process.
 
 ```bash
-npm run migrations
+docker run --name udacity-init-database udacity-init-database
 ```
 
-If you have modified/created any entity you can generate a migration from it:
+This command will execute the necessary scripts to set up the initial state of the database.
 
-```bash
-npm run migrations:generate -- --n <MigrationName>
-```
-
-To revert the last applied migration:
-
-```bash
-npm run migrations:revert
-```
+**Note:** Adjust the `--name` parameter as needed for your project conventions.
 
 ## DB Setup
 
-You need to add some environment variables to your system in order to run migrations or the backend. For convenience, you can also create a `.env` file to represent your environment. Here's the format:
+Ensure that your environment variables are correctly configured for the database setup. This may include variables such as:
 
-```
-TYPEORM_CONNECTION=postgres
-TYPEORM_HOST=localhost
-TYPEORM_PORT=5432
-TYPEORM_USERNAME=postgres
-TYPEORM_PASSWORD=password
-TYPEORM_DATABASE=glee2
-TYPEORM_MIGRATIONS=./src/migrations/*.ts
-TYPEORM_ENTITIES=./src/modules/**/*.entity.ts
-```
+- `DB_HOST`
+- `DB_PORT`
+- `DB_USER`
+- `DB_PASSWORD`
+- `DB_NAME`
 
-## Migrations for CI/CD Review Apps
+Make sure to set these variables with the appropriate values for your database configuration.
 
-It would be best to spin up a database in RDS while we are spinning up a new environment in EB. BUT, it takes around 10 minutes to spin up a new DB in RDS. It's also more work to script the new db that we don't have time for. So, as a stop-gap, you can manually migrate a shared database ("dev") from the CI/CD screen in Gitlab. This will trigger a build step that runs "revert" and "run" to down and up the migrations. You must make sure that you have all the necessary db-related env vars in Gitlab so that this will work (see "DB Setup" section).
+Feel free to customize these instructions based on the specific requirements and conventions of your project.
 
-## Authentication with Auth0
-
-Authentication has been applied to all endpoints, so it's not necessary to specify which endpoints require auth. For authentication to work, you will need some env vars, for example:
-
-```
-AUTH0_CLIENT_SECRET= <id placeholder, check trello card on OIW board in resources lane>
-AUTH0_CLIENT_ID= <id placeholder, check trello card on OIW board in resources lane>
-AUTH0_DOMAIN=glee2-dev.auth0.com
-AUTH0_AUDIENCE=http://localhost:3030
-```
-
-(These vars work for our `Acklen` tenant in Auth0 using the API called "testing".)
-
-To test the API with Postman, you will need a valid JWT encrypted with RS256 and the correct client secret (amongst other things). You can generate said JWT by hitting Auth0's OAuth endpoint like this:
-
-```
-curl --request POST \
-  --url https://acklen.auth0.com/oauth/token \
-  --header 'content-type: application/json' \
-  --data '{"client_id":"qrzt4jjhdmJHSdg5Ca6gVsdtY6x1xc2G","client_secret":"Xm6vhFnMv2BonJ8lhxsbCAZtIe5KjqqyXKNut5I5Spt4AQ3ms7mYTmwQ7JzIIwdt","audience":"http://localhost:3030","grant_type":"client_credentials"}'
-```
-
-(This only works with an "API" in Auth0. It will not work with an "Application" in Auth0 because they disable `client_credentials` grants by default and we have not found a way to enable that.)
-
-To switch your backend to use the "Application" in Auth0, you should simply change the clientId, clientSecret, and audience in your environment variables.
